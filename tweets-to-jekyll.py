@@ -5,7 +5,7 @@ import config
 import re
 from datetime import datetime, timedelta
 
-def get_tweets(timeframe = config.default_timeframe):
+def get_tweets():
     api = twitter.Api(
         consumer_key = config.consumer_key,
         consumer_secret = config.consumer_secret,
@@ -13,16 +13,31 @@ def get_tweets(timeframe = config.default_timeframe):
         access_token_secret = config.access_token_secret)
 
     username = config.username
-    statuses = api.GetUserTimeline(screen_name=username, exclude_replies=True)
+    tweets = api.GetUserTimeline(screen_name=username, exclude_replies=True)
 
-    formatted_tweet_list = []
+    tweets = filter_tweets(tweets)
 
+    tweets = format_tweets(tweets)
+
+    for tweet in tweets:
+        print(tweet)
+    return tweets
+
+def filter_tweets(tweets, timeframe=config.default_timeframe):
+    filtered_tweets = []
     timeframe = datetime.combine(datetime.now().date() - timedelta(days = timeframe),datetime.min.time())
+    for tweet in [s for s in tweets]:
+        tweet_year = tweet.created_at[-4:]
+        tweet_date = tweet.created_at[:-20]
+        tweet_date = tweet_date + ' ' + tweet_year
+        tweet_date = datetime.strptime(tweet_date, '%a %b %d %Y')
+        if tweet_date >= timeframe:
+            filtered_tweets.append(tweet)
+    return(filtered_tweets)
 
-    # Regexes to find RT's and tweets w/ URLs
 
-    tweets = filter_tweets(statuses)
-
+def format_tweets(tweets):
+    formatted_tweet_list = []
     url_format = ' https:\/\/t.co\/.*'
     rt_format = r'RT @.*:'
 
@@ -46,24 +61,9 @@ def get_tweets(timeframe = config.default_timeframe):
 
         formatted_tweet_list.append(formatted_tweet)
 
-    for tweet in formatted_tweet_list:
-        print(tweet)
     return formatted_tweet_list
+# pass
 
-def filter_tweets(tweets, timeframe=config.default_timeframe):
-    filtered_tweets = []
-    timeframe = datetime.combine(datetime.now().date() - timedelta(days = timeframe),datetime.min.time())
-    for tweet in [s for s in tweets]:
-        tweet_year = tweet.created_at[-4:]
-        tweet_date = tweet.created_at[:-20]
-        tweet_date = tweet_date + ' ' + tweet_year
-        tweet_date = datetime.strptime(tweet_date, '%a %b %d %Y')
-        if tweet_date >= timeframe:
-            filtered_tweets.append(tweet)
-    return(filtered_tweets)
-
-def format_tweet(tweet):
-    pass
 
 def write_tweets_to_file(tweets):
     count = 0
