@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 
 import twitter
-import config
 import re
 from datetime import datetime, timedelta
+
+try:
+    import config
+except:
+    print("Error: No config file found")
+
 
 def get_tweets():
     api = twitter.Api(
@@ -14,14 +19,8 @@ def get_tweets():
 
     username = config.username
     tweets = api.GetUserTimeline(screen_name=username, exclude_replies=True)
-
-    tweets = filter_tweets(tweets)
-
-    tweets = format_tweets(tweets)
-
-    for tweet in tweets:
-        print(tweet)
     return tweets
+
 
 def filter_tweets(tweets, timeframe=config.default_timeframe):
     filtered_tweets = []
@@ -62,17 +61,34 @@ def format_tweets(tweets):
         formatted_tweet_list.append(formatted_tweet)
 
     return formatted_tweet_list
-# pass
 
 
 def write_tweets_to_file(tweets):
+    header = f"---\ntitle: {config.title}\n---\n\n"
+    footer = "\nCreated with tweets-to-jekyll"
     count = 0
-    with open('tweets.md', "w") as file:
-        for tweet in tweets:
-            file.write(tweet+'\n')
-            count += 1
-        print(count, "tweets written to file")
+    body = ''
 
-tweets = get_tweets()
-write_tweets_to_file(tweets)
+    for tweet in tweets:
+        body += tweet+'\n'
+        count += 1
+
+    with open(config.filename, "w") as file:
+        file.write(header)
+        file.write(body)
+        file.write(footer)
+
+    print(f"{count} tweets written to {config.filename}")
+
+
+def post_to_jekyll(tweets):
+    pass
+
+
+if __name__ == "__main__":
+    tweets = get_tweets()
+    tweets = filter_tweets(tweets)
+    tweets = format_tweets(tweets)
+
+    write_tweets_to_file(tweets)
 
