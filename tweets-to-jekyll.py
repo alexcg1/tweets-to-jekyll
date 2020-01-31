@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 
-import twitter
-import re
-from datetime import datetime, timedelta
-
 try:
     import config
 except:
@@ -11,18 +7,24 @@ except:
 
 
 def get_tweets():
+    import twitter
     api = twitter.Api(
         consumer_key = config.consumer_key,
         consumer_secret = config.consumer_secret,
         access_token_key = config.access_token_key,
         access_token_secret = config.access_token_secret)
 
-    username = config.username
-    tweets = api.GetUserTimeline(screen_name=username, exclude_replies=True)
+    print(f"* Retrieving tweets from user {config.username}")
+    try:
+        tweets = api.GetUserTimeline(screen_name=config.username, exclude_replies=config.exclude_replies)
+        print(f"* {len(tweets)} tweets received")
+    except:
+        print("* ERROR: Failed to retrieve tweets")
     return tweets
 
 
 def filter_tweets(tweets, timeframe=config.default_timeframe):
+    from datetime import datetime, timedelta
     filtered_tweets = []
     timeframe = datetime.combine(datetime.now().date() - timedelta(days = timeframe),datetime.min.time())
     for tweet in [s for s in tweets]:
@@ -36,6 +38,7 @@ def filter_tweets(tweets, timeframe=config.default_timeframe):
 
 
 def format_tweets(tweets):
+    import re
     formatted_tweet_list = []
     url_format = ' https:\/\/t.co\/.*'
     rt_format = r'RT @.*:'
@@ -78,17 +81,19 @@ def write_tweets_to_file(tweets):
         file.write(body)
         file.write(footer)
 
-    print(f"{count} tweets written to {config.filename}")
+    print(f"* {count} tweets written to {config.filename}")
 
 
-def post_to_jekyll(tweets):
+def post_to_jekyll(file):
+    pass
+
+
+def check_already_posted(tweet):
     pass
 
 
 if __name__ == "__main__":
     tweets = get_tweets()
-    tweets = filter_tweets(tweets)
-    tweets = format_tweets(tweets)
-
-    write_tweets_to_file(tweets)
-
+    filtered_tweets = filter_tweets(tweets)
+    formatted_tweets = format_tweets(filtered_tweets)
+    write_tweets_to_file(formatted_tweets)
