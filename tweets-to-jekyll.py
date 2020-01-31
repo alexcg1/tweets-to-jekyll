@@ -54,14 +54,15 @@ def format_tweets(tweets):
         elif tweet.urls:
             url = tweet.urls[0].url
 
-        formatted_tweet = f"* [{text}]({url})"
+        tweet.formatted = f"* [{text}]({url})"
+        # tweet.formatted = formatted_tweet
 
         if via:
             via = re.sub('RT ', '', via[0])
             via = ' via ' + re.sub(':', '', via)
-            formatted_tweet += via
+            tweet.formatted += via
 
-        formatted_tweet_list.append(formatted_tweet)
+        formatted_tweet_list.append(tweet.formatted)
 
     return formatted_tweet_list
 
@@ -88,11 +89,18 @@ def post_to_jekyll(file):
     pass
 
 
-def check_already_posted(tweet):
-    pass
+def mark_posted():
+    import sqlite3
 
+    with sqlite3.connect("tweets.sqlite3") as conn:
+        command = "INSERT INTO Tweets VALUES (?, ?)"
+
+        for i in range(5):
+            conn.execute(command, (12345, 123))
+            conn.commit()
 
 if __name__ == "__main__":
+    # mark_posted()
     tweets = get_tweets()
     filtered_tweets = filter_tweets(tweets)
     formatted_tweets = format_tweets(filtered_tweets)
