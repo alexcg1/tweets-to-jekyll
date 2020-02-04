@@ -12,7 +12,7 @@ pip install twitter
 
 Then edit *sample.credentials.py* and save as credentials.py*. You'll need to sign up as a Twitter developer to get API key, etc. Your username, etc can be set in config.py.
 
-Finally, run ./tweets-to-jekyll.py to shunt your tweets into a markdown file.
+Finally, run `./tweets-to-jekyll.py` to shunt your tweets into a markdown file.
 
 ## TODO
 
