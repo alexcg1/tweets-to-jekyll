@@ -7,7 +7,7 @@ Small Python program to grab your tweets, collect them in a bulleted list, and p
 ### Install prerequisites
 
 ```
-pip install twitter
+pip install -r requirements.txt
 ```
 
 ### Set up credentials and config
