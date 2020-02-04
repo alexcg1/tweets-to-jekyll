@@ -1,0 +1,8 @@
+.vim
+Pipfile.lock
+__pycache__
+config.py
+credentials.py
+old
+posted_tweets.log
+tweets.md

@@ -7,7 +7,6 @@ import logging as log
 from datetime import datetime, timedelta
 
 log.basicConfig(format="* %(levelname)s: %(message)s", level=log.INFO)
-log.info("Verbose output.")
 
 simple_tweets = []
 tweets_written = 0
@@ -45,7 +44,7 @@ def get_tweets():
     return tweets
 
 
-def get_last_tweet_id():
+def __get_last_tweet_id():
     '''
     Get the id field of the user's most recent tweet from the log
     '''
@@ -127,12 +126,12 @@ def format_tweets(tweets):
         simple_tweets.append(simple_tweet)
 
 
-def write_tweets_to_file(simple_tweets):
+def write_tweets_to_file(simple_tweets, file=config.filename):
     '''
-    Write header, footer, and each bullet point to a markdown file.
+    Write header, footer, and each bullet point to a markdown file, based on contents of simple dict of twitter data.
     '''
     header = f"---\ntitle: {config.title}\n---\n\n"
-    footer = "\nCreated with tweets-to-jekyll"
+    footer = "\n[Created with tweets-to-jekyll](https://github.com/alexcg1/tweets-to-jekyll)"
     count = 0
     skipped_count = 0
     body = ''
