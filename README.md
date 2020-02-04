@@ -12,7 +12,7 @@ pip install -r requirements.txt
 
 ### Set up credentials and config
 
-* Edit *sample.credentials.py* and save as credentials.py*. You'll need to sign up as a Twitter developer to get API key, etc. Your username, etc can be set in config.py.
+* Edit sample.credentials.py and save as *credentials.py*. You'll need to sign up as a Twitter developer to get API key, etc. Your username, etc can be set in config.py.
 * Edit config.py to specify username, blog directory, etc
 
 ## Usage
