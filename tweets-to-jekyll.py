@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from pathlib import Path
 import sys
 import config
 import logging as log
@@ -49,11 +50,9 @@ def get_last_tweet_id():
     Get the id field of the user's most recent tweet from the log
     '''
 
-    try:
+    if config.tweet_log.is_file:
         with open(config.tweet_log, "r") as file:
             tweet_id = file.readlines()[0]
-    except:
-        pass
 
     return tweet_id
 
@@ -169,12 +168,12 @@ def __check_log_for_tweet(tweet):
     '''
     Check if tweet already logged in file
     '''
-    try:
+    if config.tweet_log.is_file:
         with open(config.tweet_log, "r") as file:
             if str(tweet["id"])+"\n" in file.readlines():
                 return True
-    except:
-        pass
+
+    return False
 
 
 def __write_log(tweet):
