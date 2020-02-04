@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-import sqlite3
 import config
-from pprint import pprint
 import logging as log
 from datetime import datetime, timedelta
 
@@ -57,15 +55,6 @@ def get_last_tweet_id():
     except:
         pass
 
-    # with sqlite3.connect(config.database) as conn:
-    # cur = conn.cursor()
-    # cur.execute("SELECT id FROM Tweets")
-    # db_output = cur.fetchall()
-
-    # tweet_id = db_output[-1][0]
-    # for row in db_output:
-    # done_tweet_list.append(row[0])
-    # counter += 1
     return tweet_id
 
 
@@ -91,7 +80,6 @@ def format_tweets(tweets):
     Convert tweet dict to array of markdown bullet points
     '''
     import re
-    import json
     formatted_tweet_list = []
     url_format = ' https:\/\/t.co\/.*'
     rt_format = r'RT @.*:'
@@ -147,23 +135,27 @@ def write_tweets_to_file(simple_tweets):
     header = f"---\ntitle: {config.title}\n---\n\n"
     footer = "\nCreated with tweets-to-jekyll"
     count = 0
+    skipped_count = 0
     body = ''
 
     for tweet in simple_tweets:
-        # tweet["done"] = False
-        body += tweet["formatted"]+'\n'
-        count += 1
-        # tweet["done"] = True
-        # print("-"*100)
-        # pprint(tweet)
-        write_log(tweet)
+        if __check_log_for_tweet(tweet) == True:
+            skipped_count += 1
+            pass
+        else:
+            body += tweet["formatted"]+'\n'
+            count += 1
+            __write_log(tweet)
 
-    with open(config.filename, "w") as file:
-        file.write(header)
-        file.write(body)
-        file.write(footer)
+    if count > 0:
+        with open(config.filename, "w") as file:
+            file.write(header)
+            file.write(body)
+            file.write(footer)
 
-    log.info(str(count) + " tweets written to " + config.filename)
+        log.info(f"{count} tweets written to {config.filename}. {skipped_count} tweets skipped (already posted)")
+    else:
+        log.info(f"No new tweets to write to {config.filename}")
 
 
 def post_to_jekyll(file):
@@ -184,25 +176,8 @@ def __check_log_for_tweet(tweet):
     except:
         pass
 
-    # done_tweet_list = []
-    # counter = 0
 
-    # with sqlite3.connect(config.database) as conn:
-    # cur = conn.cursor()
-    # cur.execute("SELECT id FROM Tweets")
-    # db_output = cur.fetchall()
-
-    # for row in db_output:
-    # done_tweet_list.append(row[0])
-    # counter += 1
-
-    # if tweet["id"] in done_tweet_list:
-    # return True
-    # else:
-    # return False
-
-
-def write_log(tweet):
+def __write_log(tweet):
     '''
     Mark tweet as processed in the database
     '''
@@ -212,21 +187,6 @@ def write_log(tweet):
     else:
         with open("posted_tweets.log", "a") as file:
             file.write(str(tweet["id"])+"\n")
-    # log.info(str(tweet["id"]) + " already processed. Skipping")
-    # tweets_skipped += 1
-    # else:
-    # tweet["done"] = 1
-    # tweet["timestamp"] = datetime.timestamp(datetime.now())
-
-    # with sqlite3.connect("tweets.sqlite3") as conn:
-    # command = "INSERT INTO Tweets VALUES (?, ?, ?, ?)"
-    # conn.execute(command, (tweet["id"], tweet["done"], tweet["timestamp"], tweet["url"]))
-
-    # # tweets_written += 1
-
-    # conn.commit()
-
-
 
 
 if __name__ == "__main__":
