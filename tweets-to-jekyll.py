@@ -144,10 +144,9 @@ def write_tweets_to_file(simple_tweets):
     Write header, footer, and each bullet point to a markdown file, based on contents of simple dict of twitter data.
     '''
     filename = Path(os.path.join(config.jekyll_folder, config.post_filename))
-    header = f"""
----
-title: {config.title} - {__get_dates(tweets)}
-tags: {config.tags}
+    header = f"""---
+title: \"{config.title} - {__get_dates(tweets)}\"
+tags: \"{config.tags}\"
 ---
 
     """

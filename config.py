@@ -4,7 +4,7 @@ from datetime import date
 username = "alexcg"
 jekyll_folder = "/home/alexcg/code/alexcg1.github.io/_posts"
 tags = "twitter" # Comma separated list
-tweet_limit = 200
+tweet_limit = 20
 
 # Filter settings
 default_timeframe = 30
