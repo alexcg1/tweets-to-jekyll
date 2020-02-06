@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
+import os
 import sys
 import config
 import logging as log
 from datetime import datetime, timedelta
+from pathlib import Path
 
 log.basicConfig(format="* %(levelname)s: %(message)s", level=log.INFO)
 
@@ -12,6 +13,18 @@ simple_tweets = []
 tweets_written = 0
 tweets_skipped = 0
 
+def __get_dates(tweets):
+    '''
+    Looks at a list of tweets. Extracts date of first and last
+    '''
+
+    first = tweets[-1].created_at[4:11]
+    last = tweets[0].created_at[4:11]
+
+    if first != last:
+        return f"{first}-{last}"
+    else:
+        return first
 
 def get_tweets():
     '''
@@ -20,10 +33,10 @@ def get_tweets():
     import credentials
     import twitter
 
-    try:
-        get_last_tweet_id()
-    except:
-        pass
+    # try:
+    # get_last_tweet_id()
+    # except:
+    # pass
 
     api = twitter.Api(
         consumer_key = credentials.consumer_key,
@@ -126,11 +139,12 @@ def format_tweets(tweets):
         simple_tweets.append(simple_tweet)
 
 
-def write_tweets_to_file(simple_tweets, file=config.filename):
+def write_tweets_to_file(simple_tweets):
     '''
     Write header, footer, and each bullet point to a markdown file, based on contents of simple dict of twitter data.
     '''
-    header = f"---\ntitle: {config.title}\n---\n\n"
+    filename = Path(os.path.join(config.jekyll_folder, config.post_filename))
+    header = f"---\ntitle: {config.title} - {__get_dates(tweets)}\n---\n\n"
     footer = "\n[Created with tweets-to-jekyll](https://github.com/alexcg1/tweets-to-jekyll)"
     count = 0
     skipped_count = 0
@@ -143,17 +157,24 @@ def write_tweets_to_file(simple_tweets, file=config.filename):
         else:
             body += tweet["formatted"]+'\n'
             count += 1
-            __write_log(tweet)
 
     if count > 0:
-        with open(config.filename, "w") as file:
+        print("Writing to: ", filename)
+        with open(filename, "w") as file:
             file.write(header)
             file.write(body)
             file.write(footer)
 
-        log.info(f"{count} tweets written to {config.filename}. {skipped_count} tweets skipped (already posted)")
+    for tweet in simple_tweets:
+        if __check_log_for_tweet(tweet) == True:
+            pass
+        else:
+            __write_log(tweet)
+
+    if skipped_count > 0:
+        log.info(f"{count} tweets written to {filename}. {skipped_count} tweets skipped (already posted)")
     else:
-        log.info(f"No new tweets to write to {config.filename}")
+        log.info(f"No new tweets to write")
 
 
 def post_to_jekyll(file):
@@ -167,12 +188,12 @@ def __check_log_for_tweet(tweet):
     '''
     Check if tweet already logged in file
     '''
-    if config.tweet_log.is_file:
+    if Path(config.tweet_log).exists():
         with open(config.tweet_log, "r") as file:
             if str(tweet["id"])+"\n" in file.readlines():
                 return True
-
-    return False
+    else:
+        return False
 
 
 def __write_log(tweet):

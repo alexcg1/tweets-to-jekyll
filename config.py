@@ -1,8 +1,9 @@
-from pathlib import Path
+from datetime import date
 
 # User tweets to get
 # Todo: Convert to array for multiple streams
 username = "alexcg"
+jekyll_folder = "/home/alexcg/code/alexcg1.github.io/_posts"
 tweet_limit = 200
 
 # Filter settings
@@ -13,8 +14,7 @@ include_rts = False
 
 ## Jekyll settings
 
-filename = 'tweets.md'
-title = "Latest Tweets"
+title = f"Tweets"
 
 # Database
 # database = 'tweets.sqlite3'
@@ -23,5 +23,5 @@ title = "Latest Tweets"
 posts_dir = './'
 
 # Filenames
-
-tweet_log = Path("posted_tweets.log")
+post_filename = f"{date.today()}-tweets.md"
+tweet_log = "posted_tweets.log"
